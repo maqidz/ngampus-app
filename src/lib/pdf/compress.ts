@@ -51,7 +51,7 @@ async function canvasToJpeg(canvas: HTMLCanvasElement, quality: number): Promise
 }
 
 async function rewritePdf(data: Uint8Array, fileName: string): Promise<Uint8Array> {
-  const src = await PDFDocument.load(data, { ignoreEncryption: true });
+  const src = await PDFDocument.load(data, { ignoreEncryption: false });
   const out = await PDFDocument.create();
   out.setTitle(fileName.replace(/\.pdf$/i, "") + " (kompres)");
   out.setProducer("PDFKilat");
@@ -306,10 +306,12 @@ function smaller(a: Uint8Array, b: Uint8Array) {
 
 export async function compressPdf(
   file: File,
-  onProgress?: (done: number, total: number) => void
+  onProgress?: (done: number, total: number) => void,
+  mode: "balanced" | "lossless" = "balanced"
 ): Promise<Uint8Array> {
   const data = new Uint8Array(await file.arrayBuffer());
 
+  if(mode === "lossless")return smaller(await rewritePdf(data,file.name),data);
   const raster = await rasterCompress(data, file.name, onProgress);
   if (raster && raster.byteLength < data.byteLength) return raster;
 

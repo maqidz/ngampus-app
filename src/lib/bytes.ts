@@ -15,10 +15,10 @@ export function downloadBytes(bytes: Uint8Array, filename: string) {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
 
 export function stampName(base: string, suffix: string) {
-  const clean = base.replace(/\.pdf$/i, "").replace(/[^\w.-]+/g, "_");
+  const clean = base.replace(/\.[^.]+$/i, "").replace(/[^\w.-]+/g, "_");
   return `${clean || "berkas"}_${suffix}.pdf`;
 }

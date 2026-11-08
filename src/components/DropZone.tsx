@@ -5,6 +5,7 @@ import { MAX_FILE_BYTES, MAX_FILES, formatBytes } from "@/lib/bytes";
 
 type Props = {
   accept: string;
+  disabled?: boolean;
   multiple?: boolean;
   files: File[];
   onChange: (files: File[]) => void;
@@ -15,16 +16,20 @@ function sameFile(a: File, b: File) {
   return a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
 }
 
-export function DropZone({ accept, multiple = true, files, onChange, hint }: Props) {
+export function DropZone({ disabled=false, accept, multiple = true, files, onChange, hint }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const addFiles = useCallback(
     (incoming: FileList | File[]) => {
+      if(disabled)return;
       const next = multiple ? [...files] : [];
       const problems: string[] = [];
       for (const file of Array.from(incoming)) {
+        const matches=accept.split(',').some(raw=>{const rule=raw.trim().toLowerCase();return rule.startsWith('.')?file.name.toLowerCase().endsWith(rule):rule.endsWith('/*')?file.type.startsWith(rule.slice(0,-1)):file.type===rule;});
+        if(!matches){problems.push(`${file.name}: format file tidak sesuai alat ini.`);continue;}
+        if(next.reduce((sum,item)=>sum+item.size,0)+file.size>150*1024*1024){problems.push('Total file maksimal 150 MB.');continue;}
         if (file.size > MAX_FILE_BYTES) {
           problems.push(`${file.name} lebih dari 40 MB.`);
           continue;
@@ -39,13 +44,14 @@ export function DropZone({ accept, multiple = true, files, onChange, hint }: Pro
       setError(problems[0] ?? null);
       onChange(multiple ? next : next.slice(-1));
     },
-    [files, multiple, onChange]
+    [accept, disabled, files, multiple, onChange]
   );
 
   return (
     <div>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -67,6 +73,7 @@ export function DropZone({ accept, multiple = true, files, onChange, hint }: Pro
         <p className="mt-1 text-sm text-muted">{hint ?? "Maks 40 MB per file. Diproses di perangkatmu."}</p>
       </button>
       <input
+        disabled={disabled}
         ref={inputRef}
         type="file"
         accept={accept}
@@ -95,7 +102,8 @@ export function DropZone({ accept, multiple = true, files, onChange, hint }: Pro
               {multiple && files.length > 1 && (
                 <div className="flex gap-1">
                   <button
-                    type="button"
+                    disabled={disabled}
+                type="button"
                     className="rounded-md px-2 py-1 text-xs text-muted hover:bg-neutral-100"
                     onClick={() => {
                       if (i === 0) return;
@@ -107,7 +115,8 @@ export function DropZone({ accept, multiple = true, files, onChange, hint }: Pro
                     ↑
                   </button>
                   <button
-                    type="button"
+                    disabled={disabled}
+                type="button"
                     className="rounded-md px-2 py-1 text-xs text-muted hover:bg-neutral-100"
                     onClick={() => {
                       if (i === files.length - 1) return;
@@ -121,6 +130,7 @@ export function DropZone({ accept, multiple = true, files, onChange, hint }: Pro
                 </div>
               )}
               <button
+                disabled={disabled}
                 type="button"
                 className="rounded-md px-2 py-1 text-xs text-muted hover:bg-red-50 hover:text-red-600"
                 onClick={() => onChange(files.filter((_, idx) => idx !== i))}

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { DropZone } from "@/components/DropZone";
 import { downloadBytes, formatBytes, stampName } from "@/lib/bytes";
-import { convertHint, convertToPdf } from "@/lib/pdf/convert";
+import type { ConversionTool } from "@/lib/conversion-tools";
+import { convertHint, convertToPdf, extOf } from "@/lib/pdf/convert";
 
-export function ConvertTool() {
+export function ConvertTool({ tool }: { tool?: ConversionTool }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -15,7 +16,7 @@ export function ConvertTool() {
   async function run() {
     setError(null);
     setResult(null);
-    const blocked = files.map(convertHint).filter(Boolean);
+    const blocked = files.map(file => tool && !tool.extensions.includes(extOf(file.name)) ? `${file.name}: pilih format ${tool.extensions.join(", ")}.` : convertHint(file)).filter(Boolean);
     if (blocked.length) {
       setError(blocked.join(" "));
       return;
@@ -40,10 +41,11 @@ export function ConvertTool() {
   return (
     <div>
       <DropZone
-        accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg,.txt,.md,.csv,.json,.html,.htm,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+        accept={tool ? tool.extensions.map(ext => `.${ext}`).join(",") : "image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg,.txt,.md,.csv,.json,.html,.htm,.docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"}
+        disabled={busy}
         files={files}
-        onChange={setFiles}
-        hint="Gambar, TXT/MD/CSV/JSON/HTML, DOCX, atau PDF. Excel/PPT belum."
+        onChange={files => { setFiles(files); setResult(null); setError(null); }}
+        hint={tool ? `${tool.extensions.join(", ").toUpperCase()} · Maksimal 40 MB per file.` : "Gambar, TXT/MD/CSV/JSON/HTML, DOCX, atau PDF. Excel/PPT belum."}
       />
       <button
         type="button"

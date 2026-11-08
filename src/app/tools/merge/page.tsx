@@ -18,7 +18,7 @@ const faq = [
   },
   {
     q: "PDF terenkripsi?",
-    a: "File berpassword yang masih bisa dibaca viewer biasanya tetap bisa digabung. Kalau gagal, buka dulu PDF-nya dan simpan ulang tanpa password.",
+    a: "Gunakan PDF tanpa password. PDF terenkripsi ditolak agar isi tidak diproses secara tidak lengkap.",
   },
 ];
 
