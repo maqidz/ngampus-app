@@ -1,0 +1,21 @@
+"use client";
+import {useRef,useState} from 'react';
+import {trimSignature,canvasBytes,freeCanvas} from '@/lib/pdf/image';
+import {signaturePlacement} from '@/lib/pdf/signature';
+import {PDFDocument} from 'pdf-lib';
+import {downloadBytes} from '@/lib/bytes';
+export function SignTool(){
+ const canvas=useRef<HTMLCanvasElement>(null),drawing=useRef(false);
+ const [file,setFile]=useState<File|null>(null),[count,setCount]=useState(0),[page,setPage]=useState(1),[x,setX]=useState(65),[y,setY]=useState(80),[width,setWidth]=useState(25),[signed,setSigned]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[result,setResult]=useState<Uint8Array|null>(null);
+ async function load(f?:File){setFile(null);setResult(null);setError('');setCount(0);if(!f)return;if(f.size>20*1024*1024){setError('Maksimal 20 MB.');return;}setBusy(true);try{const doc=await PDFDocument.load(await f.arrayBuffer());setCount(doc.getPageCount());setPage(1);setFile(f);}catch{setError('PDF tidak dapat dibaca. Gunakan PDF tanpa password.');}finally{setBusy(false);}}
+ async function save(){if(!file||!canvas.current||!signed)return;setBusy(true);setError('');try{const doc=await PDFDocument.load(await file.arrayBuffer());const target=doc.getPage(page-1);const cropped=trimSignature(canvas.current);let img;try{img=await doc.embedPng(await canvasBytes(cropped,'image/png'));}finally{freeCanvas(cropped);}target.drawImage(img,signaturePlacement(target,img.width/img.height,width,x,y));const bytes=await doc.save();setResult(bytes);downloadBytes(bytes,'dokumen-ditandatangani.pdf');}catch(e){setError(e instanceof Error?e.message:'Gagal menandatangani PDF.');}finally{setBusy(false);}}
+ return <div className="space-y-4"><fieldset disabled={busy} className="space-y-4"><label className="block">Pilih PDF (maks. 20 MB)<input type="file" accept=".pdf,application/pdf" className="mt-2 block w-full" onChange={e=>load(e.target.files?.[0])}/></label>
+ <p className="text-sm">Gambar tanda tangan menggunakan mouse atau sentuhan.</p>
+ <canvas ref={canvas} width={600} height={200} aria-label="Area menggambar tanda tangan" className="w-full touch-none rounded-xl border border-neutral-300 bg-white" onPointerDown={e=>{if(busy)return;const c=e.currentTarget;const rect=c.getBoundingClientRect();const ctx=c.getContext('2d')!;ctx.beginPath();ctx.moveTo((e.clientX-rect.left)*c.width/rect.width,(e.clientY-rect.top)*c.height/rect.height);ctx.lineWidth=3;ctx.lineCap='round';ctx.strokeStyle='#111';drawing.current=true;c.setPointerCapture(e.pointerId);setResult(null);}} onPointerMove={e=>{if(!drawing.current)return;const c=e.currentTarget,r=c.getBoundingClientRect(),ctx=c.getContext('2d')!;ctx.lineTo((e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height);ctx.stroke();setSigned(true);}} onPointerUp={()=>{drawing.current=false;}} onPointerCancel={()=>{drawing.current=false;}}/>
+ <button type="button" className="text-sm underline" onClick={()=>{canvas.current?.getContext('2d')?.clearRect(0,0,600,200);setSigned(false);setResult(null);}}>Hapus tanda tangan</button>
+ {count>0&&<label className="block">Halaman<select value={page} onChange={e=>{setPage(Number(e.target.value));setResult(null);}} className="ml-3 rounded border p-2">{Array.from({length:count},(_,i)=><option key={i} value={i+1}>{i+1}</option>)}</select></label>}
+ {([['Posisi horizontal (kiri → kanan)',x,setX,100],['Posisi vertikal (atas → bawah)',y,setY,100],['Lebar tanda tangan (%)',width,setWidth,60]] as const).map(([label,value,set,max])=><label className="block text-sm" key={label}>{label}: {value}<input type="range" min={label.startsWith('Lebar')?10:0} max={max} value={value} onChange={e=>{set(Number(e.target.value));setResult(null);}} className="mt-2 block w-full"/></label>)}
+ <p className="text-sm text-muted">Posisi dihitung relatif terhadap halaman. Buka hasil PDF untuk memeriksa penempatannya.</p>
+ <button disabled={!file||!signed} onClick={save} className="w-full rounded-lg bg-accent p-3 text-white disabled:opacity-40">{busy?'Memproses…':'Tambahkan tanda tangan & unduh'}</button></fieldset>
+ {error&&<p role="alert" className="text-sm text-red-700">{error}</p>}{result&&<button className="text-accent underline" onClick={()=>downloadBytes(result,'dokumen-ditandatangani.pdf')}>Unduh hasil lagi</button>}</div>;
+}

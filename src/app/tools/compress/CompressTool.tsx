@@ -6,6 +6,7 @@ import { downloadBytes, formatBytes, stampName } from "@/lib/bytes";
 import { compressPdf } from "@/lib/pdf/compress";
 
 export function CompressTool() {
+  const [mode,setMode]=useState<"balanced"|"lossless">("balanced");
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export function CompressTool() {
     try {
       const bytes = await compressPdf(file, (done, total) => {
         setProgress(`Mengompres… ${Math.round((done / total) * 100)}%`);
-      });
+      },mode);
       const name = stampName(file.name, "kompres");
       setResult({ bytes, name, before: file.size });
       downloadBytes(bytes, name);
@@ -47,9 +48,11 @@ export function CompressTool() {
         accept="application/pdf,.pdf"
         multiple={false}
         files={files}
-        onChange={setFiles}
+        disabled={busy}
+        onChange={files=>{setFiles(files);setResult(null);setError(null);}}
         hint="Satu PDF. Kompres otomatis dengan target ukuran berkurang 35–50%. Hasil bergantung pada isi file; teks dapat menjadi gambar."
       />
+      <label className="mt-4 block text-sm">Mode kompresi<select disabled={busy} value={mode} onChange={e=>{setMode(e.target.value as typeof mode);setResult(null);}} className="mt-2 w-full rounded-xl border border-line bg-white p-3"><option value="balanced">Seimbang — hasil lebih kecil, teks dapat menjadi gambar</option><option value="lossless">Pertahankan teks — optimasi struktur tanpa rasterisasi</option></select></label>
       <button
         type="button"
         disabled={busy || files.length !== 1}

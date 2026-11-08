@@ -12,7 +12,10 @@ export async function mergePdfs(files: File[]): Promise<Uint8Array> {
 
   for (const file of files) {
     const bytes = new Uint8Array(await file.arrayBuffer());
-    const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
+    let src;
+    try{src=await PDFDocument.load(bytes);}catch{throw new Error(`${file.name}: PDF tidak dapat dibaca atau dilindungi password.`);}
+    const form=src.getForm();
+    if(form.getFields().length)form.flatten();
     const copied = await out.copyPages(src, src.getPageIndices());
     copied.forEach((page) => out.addPage(page));
   }

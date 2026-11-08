@@ -1,3 +1,4 @@
+import { imageCanvas,canvasBytes,freeCanvas } from "./image";
 import {
   PDFDocument,
   StandardFonts,
@@ -135,40 +136,16 @@ function drawTextPages(doc: PDFDocument, page: PDFPage, font: PDFFont, lines: st
 async function fileToImageBytes(file: File): Promise<{ kind: "jpg" | "png"; bytes: Uint8Array }> {
   const ext = extOf(file.name);
   const mime = file.type.toLowerCase();
-  if (ext === "jpg" || ext === "jpeg" || mime === "image/jpeg") {
+  if (file.size < 2*1024*1024 && (ext === "jpg" || ext === "jpeg" || mime === "image/jpeg")) {
     return { kind: "jpg", bytes: new Uint8Array(await file.arrayBuffer()) };
   }
-  if (ext === "png" || mime === "image/png") {
+  if (file.size < 2*1024*1024 && (ext === "png" || mime === "image/png")) {
     return { kind: "png", bytes: new Uint8Array(await file.arrayBuffer()) };
   }
 
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error(`Gagal membaca gambar ${file.name}`));
-      el.src = url;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, img.naturalWidth || img.width);
-    canvas.height = Math.max(1, img.naturalHeight || img.height);
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas tidak tersedia.");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (b) => (b ? resolve(b) : reject(new Error("Gagal encode gambar."))),
-        "image/jpeg",
-        0.92
-      );
-    });
-    return { kind: "jpg", bytes: new Uint8Array(await blob.arrayBuffer()) };
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  const canvas=await imageCanvas(file);
+  try{return {kind:"jpg",bytes:await canvasBytes(canvas)};}finally{freeCanvas(canvas);}
+
 }
 
 async function embedImageOnNewPage(doc: PDFDocument, file: File) {
@@ -211,7 +188,7 @@ async function addDocx(doc: PDFDocument, file: File, font: PDFFont) {
 
 async function addPdf(doc: PDFDocument, file: File) {
   const src = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()), {
-    ignoreEncryption: true,
+    ignoreEncryption: false,
   });
   const copied = await doc.copyPages(src, src.getPageIndices());
   copied.forEach((p) => doc.addPage(p));

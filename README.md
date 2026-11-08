@@ -1,6 +1,6 @@
 # PDFKilat
 
-Alat PDF gratis untuk tugas dan skripsi: **gabung**, **kompres**, dan **ubah file ke PDF**. Semuanya diproses di browser. File tidak pernah diunggah ke server.
+Alat PDF gratis untuk tugas dan skripsi: **gabung**, **kompres**, dan **ubah file ke PDF**. File diproses di browser, termasuk PowerPoint PPTX.
 
 Yang sudah tayang: https://ngampus-app.vercel.app
 
@@ -32,10 +32,10 @@ Buka http://localhost:3000
 
 | Halaman | Isi |
 |---|---|
-| `/` | Beranda: tiga alat PDF, plus ajakan cek plagiasi |
+| `/` | Beranda: katalog alat PDF, plus ajakan cek plagiasi |
 | `/tools/merge` | Gabung beberapa PDF jadi satu. Urutan di daftar = urutan halaman; geser dengan tombol panah |
 | `/tools/compress` | Perkecil satu PDF. Kompres otomatis dengan target pengurangan 35–50% |
-| `/tools/convert` | Gambar, teks, HTML, dan DOCX dijadikan satu PDF |
+| `/tools/convert` | Pilihan konversi per format: gambar, teks, Word, dan PowerPoint |
 | `/services/plagiarism` | Info layanan cek plagiasi (Rp 5.000). Pemesanan, pembayaran, dan laporan lewat WhatsApp belum hidup di build ini |
 
 ## Kompres PDF
@@ -48,7 +48,7 @@ Target bukan jaminan: hasil bergantung pada isi PDF dan bisa berada di luar rent
 
 Maksimal **40 MB per file** dan **30 file** sekaligus.
 
-Excel (`.xls`, `.xlsx`), PowerPoint (`.ppt`, `.pptx`), dan Word lama (`.doc`) belum bisa diproses di browser. Ekspor dulu ke PDF, atau simpan sebagai gambar/DOCX. DOCX yang didukung diambil teksnya, lalu disusun ulang ke halaman A4 — bukan layout Word yang persis.
+Excel belum ditampilkan sebagai layanan. Word DOCX dan PowerPoint PPTX memakai renderer ringan di browser, maksimal satu file 20 MB dan 50 halaman/slide. DOC/PPT/ODP perlu disimpan ulang sebagai DOCX/PPTX.
 
 Yang bisa dikonversi sekarang: PNG, JPG, WEBP, GIF, BMP, SVG, TXT, MD, CSV, JSON, HTML, LOG, DOCX, dan PDF.
 
@@ -57,6 +57,18 @@ Yang bisa dikonversi sekarang: PNG, JPG, WEBP, GIF, BMP, SVG, TXT, MD, CSV, JSON
 - Next.js 15 (App Router), React 19, TypeScript
 - Tailwind CSS v4
 - `pdf-lib` dan `pdfjs-dist` (worker lokal di `public/pdf.worker.min.mjs`)
-- `mammoth` untuk membaca DOCX
+- `mammoth` untuk konversi teks DOCX pada pipeline gabungan; halaman Word memakai docx-preview dan html2canvas
 
 Deploy di Vercel: https://ngampus-app.vercel.app
+
+## Mesin browser
+
+Word memakai docx-preview/html2canvas; PowerPoint memakai pptx-browser. Renderer
+dimuat saat konversi, tanpa LibreOffice WASM atau unduhan mesin 75 MB. Hasilnya
+berupa gambar halaman, sehingga teks tidak bisa dipilih. Font, grafik kompleks,
+dan pagination dapat berbeda. File dokumen tidak diunggah ke server.
+
+Penggabungan memakai worker. Kompresi menyediakan mode struktural untuk
+mempertahankan teks dan mode seimbang untuk dokumen berbasis gambar.
+Scanner/gambar memakai batas resolusi dan membersihkan canvas setelah diproses.
+Lihat docs/engine-review.md dan THIRD_PARTY_NOTICES.md untuk detail dan batasnya.

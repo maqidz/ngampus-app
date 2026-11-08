@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DropZone } from "@/components/DropZone";
 import { downloadBytes, formatBytes, stampName } from "@/lib/bytes";
-import { mergePdfs } from "@/lib/pdf/merge";
+import { mergeInWorker } from "@/lib/pdf/merge-client";
 
 export function MergeTool() {
   const [files, setFiles] = useState<File[]>([]);
@@ -16,7 +16,7 @@ export function MergeTool() {
     setResult(null);
     setBusy(true);
     try {
-      const bytes = await mergePdfs(files);
+      const bytes = await mergeInWorker(files);
       const name = stampName(files[0]?.name ?? "gabungan", "merged");
       setResult({ bytes, name });
       downloadBytes(bytes, name);
@@ -32,7 +32,8 @@ export function MergeTool() {
       <DropZone
         accept="application/pdf,.pdf"
         files={files}
-        onChange={setFiles}
+        disabled={busy}
+        onChange={files=>{setFiles(files);setResult(null);setError(null);}}
         hint="PDF saja. Urutan list = urutan halaman. Maks 40 MB / file."
       />
       <button
