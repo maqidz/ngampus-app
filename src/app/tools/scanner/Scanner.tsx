@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { imageCanvas,canvasBytes,freeCanvas } from "@/lib/pdf/image";
 import { downloadBytes } from "@/lib/bytes";
 import { PDFDocument } from "pdf-lib";
+import {CameraCapture} from "./CameraCapture";
 type Scan = { id: string; file: File; url: string; rotation: number };
 export function Scanner() {
   const [pages,setPages] = useState<Scan[]>([]);
@@ -12,7 +13,8 @@ export function Scanner() {
   const [dragging,setDragging] = useState(false);
   const [progress,setProgress] = useState(0);
   const [complete,setComplete] = useState(false);
-  const camera = useRef<HTMLInputElement>(null), gallery = useRef<HTMLInputElement>(null);
+  const [cameraOpen,setCameraOpen] = useState(false);
+  const gallery = useRef<HTMLInputElement>(null);
   const urls = useRef(new Set<string>());
   useEffect(()=> { const current = urls.current; return ()=>current.forEach(url=>URL.revokeObjectURL(url)); },[]);
   function add(files: FileList | File[] | null) {
@@ -46,13 +48,12 @@ export function Scanner() {
   }
   return <div className="space-y-5">
     <fieldset disabled={busy} className="space-y-5 disabled:opacity-60">
-      <input ref={camera} aria-label="Ambil foto dokumen" className="sr-only" tabIndex={-1} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={e=>{add(e.target.files);e.target.value='';}} />
       <input ref={gallery} aria-label="Pilih gambar dokumen" className="sr-only" tabIndex={-1} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{add(e.target.files);e.target.value='';}} />
       <div onDragOver={e=>{e.preventDefault();if(!busy)setDragging(true);}} onDragLeave={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node))setDragging(false);}} onDrop={e=>{e.preventDefault();setDragging(false);add(e.dataTransfer.files);}} className={`rounded-2xl border-2 border-dashed p-6 text-center transition-colors sm:p-8 ${dragging?'border-accent bg-accent-soft':'border-neutral-200 bg-white'}`}>
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-accent-soft text-accent"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M4 8V4h4m8 0h4v4M4 16v4h4m8 0h4v-4M8 7h8v10H8zM2 12h20"/></svg></div>
         <h2 className="text-lg font-semibold">{pages.length?'Tambahkan halaman berikutnya':'Mulai dari foto dokumenmu'}</h2>
         <p className="mt-2 text-sm text-muted">Ambil foto, pilih dari galeri, atau tarik gambar ke sini.</p>
-        <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row"><button type="button" onClick={()=>camera.current?.click()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4v15H4V5z"/><circle cx="12" cy="12" r="4"/></svg>Ambil foto</button><button type="button" onClick={()=>gallery.current?.click()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-3 text-sm font-semibold hover:bg-neutral-50"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m3 17 6-6 4 4 3-3 5 5"/><circle cx="16" cy="8" r="1"/></svg>Pilih gambar</button></div>
+        <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row"><button type="button" onClick={()=>{if(pages.length>=20){setError("Maksimal 20 halaman. Hapus halaman untuk menambahkan foto.");return;}setCameraOpen(true);}} className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m8 5 1-2h6l1 2h4v15H4V5z"/><circle cx="12" cy="12" r="4"/></svg>Ambil foto</button><button type="button" onClick={()=>gallery.current?.click()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-5 py-3 text-sm font-semibold hover:bg-neutral-50"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m3 17 6-6 4 4 3-3 5 5"/><circle cx="16" cy="8" r="1"/></svg>Pilih gambar</button></div>
         <p className="mt-4 text-xs text-muted">JPG, PNG, WebP · Maks. 20 MB/gambar · 20 halaman</p>
       </div>
       {pages.length>0&&<section aria-label="Halaman dokumen"><div className="mb-3 flex items-center justify-between"><h2 className="font-semibold">Halaman dokumen <span className="ml-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-muted">{pages.length}/20</span></h2><span className="text-xs text-muted">Urutan mengikuti PDF</span></div>
@@ -66,5 +67,6 @@ export function Scanner() {
     {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
     <button disabled={busy || !pages.length} onClick={download} className="w-full rounded-xl bg-accent px-5 py-4 font-semibold text-white transition-colors hover:bg-teal-800 disabled:opacity-40">{busy?`Memproses ${progress}/${pages.length} halaman…`:pages.length?`Buat & unduh PDF · ${pages.length} halaman`:'Tambahkan foto untuk membuat PDF'}</button>
     <p role="status" className="text-center text-xs text-muted">{complete?'PDF berhasil dibuat. Unduhan sudah dimulai.':'Diproses di perangkatmu. Foto tidak diunggah ke server.'}</p>
+    {cameraOpen&&<CameraCapture onClose={()=>setCameraOpen(false)} onCapture={file=>{add([file]);setCameraOpen(false);}}/>}
   </div>;
 }
