@@ -4,7 +4,8 @@ import { Footer, Header } from "@/components/Header";
 import { UpsellBanner } from "@/components/UpsellBanner";
 
 const tools = [
-  { href: "/tools/sign", title: "Sign PDF", body: "Gambar dan tambahkan tanda tangan ke halaman PDF pilihanmu." },
+  { href: "/tools/protect", title: "Protect PDF", body: "Lindungi dokumen PDF dengan password sebelum dibagikan." },
+  { href: "/tools/sign", title: "Sign PDF", body: "Buat tanda tangan, inisial, dan stempel. Atur posisinya langsung di dokumen." },
   { href: "/tools/scanner", title: "Scanner jadi PDF", body: "Ambil foto dokumen atau pilih gambar, atur urutan, lalu unduh PDF." },
   {
     href: "/tools/merge",

@@ -72,3 +72,14 @@ Penggabungan memakai worker. Kompresi menyediakan mode struktural untuk
 mempertahankan teks dan mode seimbang untuk dokumen berbasis gambar.
 Scanner/gambar memakai batas resolusi dan membersihkan canvas setelah diproses.
 Lihat docs/engine-review.md dan THIRD_PARTY_NOTICES.md untuk detail dan batasnya.
+
+## Tanda tangan dan proteksi
+
+`/tools/sign` menyediakan preview halaman, tanda tangan ketik/gambar/unggah,
+inisial, nama, tanggal, teks dan stempel. Elemen dapat digeser, diubah ukuran,
+diduplikasi dan dihapus sebelum disimpan. Tidak menggunakan sertifikat digital.
+
+`/tools/protect` mengenkripsi PDF dengan password pembuka AES-256 melalui QPDF
+di worker browser. Engine sekitar 1,3 MB dimuat hanya saat digunakan, bukan LibreOffice.
+Aset QPDF disiapkan otomatis saat dev/build. Password tidak disimpan di server
+atau localStorage; worker dihentikan setelah selesai.

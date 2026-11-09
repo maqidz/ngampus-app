@@ -19,6 +19,7 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "public/pdf.worker.min.mjs",
+      "public/qpdf/**",
     ],
   },
 ];

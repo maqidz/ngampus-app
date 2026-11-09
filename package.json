@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predev": "node scripts/prepare-qpdf.mjs",
+    "prebuild": "node scripts/prepare-qpdf.mjs"
   },
   "dependencies": {
+    "@neslinesli93/qpdf-wasm": "0.3.1",
     "docx-preview": "0.4.1",
     "html2canvas": "1.4.1",
     "mammoth": "^1.12.3",
