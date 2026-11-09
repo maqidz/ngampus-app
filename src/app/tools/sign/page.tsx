@@ -1,4 +1,4 @@
-import {ToolShell} from "@/components/ToolShell";
-import {SignTool} from "./SignTool";
+import Link from 'next/link';
+import {SignTool} from './SignTool';
 export const metadata={title:'Sign PDF'};
-export default function Page(){return <ToolShell kicker="Alat PDF" title="Sign PDF" description="Gambar tanda tangan, pilih halaman dan posisi, lalu unduh PDF. File tetap di perangkatmu." faq={[{q:"Apakah ini tanda tangan digital tersertifikasi?",a:"Tidak. Fitur ini menambahkan gambar tanda tangan, tanpa sertifikat digital atau verifikasi identitas."}]}><SignTool /></ToolShell>;}
+export default function Page(){return <><header className="flex h-16 items-center justify-between border-b border-line bg-white px-6"><Link href="/" className="font-semibold">PDF Kilat</Link><Link href="/tools/convert" className="text-sm text-muted">Semua alat PDF</Link></header><SignTool/></>;}

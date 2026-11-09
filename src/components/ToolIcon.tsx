@@ -9,7 +9,7 @@ export function ToolIcon({ tool, className = "h-16 w-16" }: { tool: string; clas
   const [color, light] = palette[id ?? ""] ?? ["#5e83c7", "#dce5f9"];
   const arrow = <path d="m18 18 11 11m-9 0h9v-9" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />;
   return <svg aria-hidden="true" focusable="false" viewBox="0 0 72 72" className={`shrink-0 ${className}`}>
-    {id === "merge" ? <>
+    {id === "protect" ? <><rect x="4" y="4" width="64" height="64" rx="8" fill="#ae6e98"/><rect x="21" y="31" width="30" height="25" rx="4" fill="white"/><path d="M26 31V24a10 10 0 0 1 20 0v7" fill="none" stroke="white" strokeWidth="5"/><circle cx="36" cy="42" r="3" fill="#ae6e98"/><path d="M36 43v6" stroke="#ae6e98" strokeWidth="3"/></> : id === "merge" ? <>
       <rect x="4" y="4" width="41" height="41" rx="5" fill="#f46950" />
       <rect x="28" y="28" width="40" height="40" rx="5" fill="#f46950" stroke="white" strokeWidth="3" />
       {arrow}<path d="m54 54-11-11m0 9v-9h9" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
