@@ -1,6 +1,5 @@
 # Third-party engines
 
-- pptx-browser — MIT, https://github.com/bowespublishing/pptx-browser
 - docx-preview — Apache-2.0, https://github.com/VolodymyrBaydalka/docxjs
 - html2canvas — MIT, https://github.com/niklasvh/html2canvas
 - pdf-lib — MIT, https://github.com/Hopding/pdf-lib

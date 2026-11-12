@@ -1,6 +1,6 @@
 # PDFKilat
 
-Alat PDF gratis untuk tugas dan skripsi: **gabung**, **kompres**, dan **ubah file ke PDF**. File diproses di browser, termasuk PowerPoint PPTX.
+Alat PDF gratis untuk tugas dan skripsi: **gabung**, **kompres**, dan **ubah file ke PDF**. File diproses di browser.
 
 Yang sudah tayang: https://ngampus-app.vercel.app
 
@@ -35,7 +35,7 @@ Buka http://localhost:3000
 | `/` | Beranda: katalog alat PDF, plus ajakan cek plagiasi |
 | `/tools/merge` | Gabung beberapa PDF jadi satu. Urutan di daftar = urutan halaman; geser dengan tombol panah |
 | `/tools/compress` | Perkecil satu PDF. Kompres otomatis dengan target pengurangan 35–50% |
-| `/tools/convert` | Pilihan konversi per format: gambar, teks, Word, dan PowerPoint |
+| `/tools/convert` | Pilihan konversi per format: gambar, teks, dan Word |
 | `/services/plagiarism` | Info layanan cek plagiasi (Rp 5.000). Pemesanan, pembayaran, dan laporan lewat WhatsApp belum hidup di build ini |
 
 ## Kompres PDF
@@ -48,7 +48,7 @@ Target bukan jaminan: hasil bergantung pada isi PDF dan bisa berada di luar rent
 
 Maksimal **40 MB per file** dan **30 file** sekaligus.
 
-Excel belum ditampilkan sebagai layanan. Word DOCX dan PowerPoint PPTX memakai renderer ringan di browser, maksimal satu file 20 MB dan 50 halaman/slide. DOC/PPT/ODP perlu disimpan ulang sebagai DOCX/PPTX.
+Word DOCX diproses di browser, maksimal satu file 20 MB dan 50 halaman. Format DOC perlu disimpan ulang sebagai DOCX.
 
 Yang bisa dikonversi sekarang: PNG, JPG, WEBP, GIF, BMP, SVG, TXT, MD, CSV, JSON, HTML, LOG, DOCX, dan PDF.
 
@@ -63,7 +63,7 @@ Deploy di Vercel: https://ngampus-app.vercel.app
 
 ## Mesin browser
 
-Word memakai docx-preview/html2canvas; PowerPoint memakai pptx-browser. Renderer
+Word memakai docx-preview dan html2canvas. Renderer
 dimuat saat konversi, tanpa LibreOffice WASM atau unduhan mesin 75 MB. Hasilnya
 berupa gambar halaman, sehingga teks tidak bisa dipilih. Font, grafik kompleks,
 dan pagination dapat berbeda. File dokumen tidak diunggah ke server.

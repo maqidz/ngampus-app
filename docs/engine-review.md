@@ -14,7 +14,7 @@ commercial PDFium or hyper-compress artifacts.
 
 ## Applied
 
-- Office: lazy-loaded pptx-browser (PPTX) and docx-preview/html2canvas (DOCX).
+- Office: lazy-loaded docx-preview and html2canvas (DOCX).
   Each page is rasterized sequentially and embedded with pdf-lib. No WASM assets,
   preparation scripts, SharedArrayBuffer or isolation headers. 20 MB / 50 pages.
 - Merge: dedicated worker, transferred byte buffers, form appearance flattened

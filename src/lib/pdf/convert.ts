@@ -38,7 +38,7 @@ export function canConvert(file: File) {
 export function convertHint(file: File) {
   const ext = extOf(file.name);
   if (["xlsx", "xls", "pptx", "ppt", "doc"].includes(ext)) {
-    return `${file.name}: format Office lama/spreadsheet belum diproses di browser. Ekspor ke PDF atau simpan sebagai gambar/DOCX.`;
+    return `${file.name}: format ini belum didukung. Ekspor ke PDF atau simpan sebagai gambar.`;
   }
   if (!canConvert(file)) {
     return `${file.name}: tipe file belum didukung.`;
