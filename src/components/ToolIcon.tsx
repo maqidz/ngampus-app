@@ -2,7 +2,7 @@
 export function ToolIcon({ tool, className = "h-16 w-16" }: { tool: string; className?: string }) {
   const id = tool.split("/").filter(Boolean).pop();
   const palette: Record<string, [string, string]> = {
-    powerpoint: ["#f47451", "#f8dacd"], word: ["#5e83c7", "#dce5f9"], jpg: ["#d6bb25", "#fcf0ab"],
+    word: ["#5e83c7", "#dce5f9"], jpg: ["#d6bb25", "#fcf0ab"],
     png: ["#5da26a", "#c7e6c6"], gambar: ["#d6bb25", "#fcf0ab"],
     teks: ["#ae6e98", "#f0dce9"], translate: ["#5e83c7", "#dce5f9"],
   };
@@ -24,7 +24,7 @@ export function ToolIcon({ tool, className = "h-16 w-16" }: { tool: string; clas
       <g fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round"><path d="M16 26V16h10m20 0h10v10m0 20v10H46m-20 0H16V46" /><path d="M27 22h18v28H27zM13 36h46" /><path d="M32 28h8m-8 16h8" /></g>
     </> : <>
       <rect x="4" y="4" width="42" height="42" rx="5" fill={light} />
-      {id === "word" || id === "teks" || id === "powerpoint" ? <text x="25" y="33" textAnchor="middle" fill={color} fontSize={id === "word" ? 25 : 17} fontWeight="800" fontFamily="Arial, sans-serif">{id === "word" ? "W" : id === "powerpoint" ? "P" : "TXT"}</text> : id === "translate" ? <text x="25" y="34" textAnchor="middle" fill={color} fontSize="26" fontWeight="700" fontFamily="Arial, sans-serif">A</text> : <text x="25" y="31" textAnchor="middle" fill={color} fontSize="13" fontWeight="800" fontFamily="Arial, sans-serif">{id === "jpg" ? "JPG" : id === "png" ? "PNG" : "IMG"}</text>}
+      {id === "word" || id === "teks" ? <text x="25" y="33" textAnchor="middle" fill={color} fontSize={id === "word" ? 25 : 17} fontWeight="800" fontFamily="Arial, sans-serif">{id === "word" ? "W" : "TXT"}</text> : id === "translate" ? <text x="25" y="34" textAnchor="middle" fill={color} fontSize="26" fontWeight="700" fontFamily="Arial, sans-serif">A</text> : <text x="25" y="31" textAnchor="middle" fill={color} fontSize="13" fontWeight="800" fontFamily="Arial, sans-serif">{id === "jpg" ? "JPG" : id === "png" ? "PNG" : "IMG"}</text>}
       <rect x="28" y="28" width="40" height="40" rx="5" fill={color} stroke="white" strokeWidth="3" />
       {id === "translate" ? <text x="48" y="56" textAnchor="middle" fill="white" fontSize="25" fontFamily="Arial, sans-serif">文</text> : <path d="m40 40 16 16m-12 0h12V44" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
     </>}
